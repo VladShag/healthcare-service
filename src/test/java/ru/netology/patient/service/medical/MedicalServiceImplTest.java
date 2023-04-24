@@ -1,4 +1,5 @@
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+package ru.netology.patient.service.medical;
+
 import org.hamcrest.core.StringContains;
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +12,6 @@ import ru.netology.patient.entity.HealthInfo;
 import ru.netology.patient.entity.PatientInfo;
 import ru.netology.patient.repository.PatientInfoFileRepository;
 import ru.netology.patient.service.alert.SendAlertServiceImpl;
-import ru.netology.patient.service.medical.MedicalServiceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -20,19 +20,19 @@ import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-
-public class Tests {
+public class MedicalServiceImplTest {
     private ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
     @Before
     public void setUpStreams() {
         System.setOut(new PrintStream(outContent));
     }
+
     @Test
     public void checkBloodPressureIfItsWrong() {
         PatientInfoFileRepository patientInfoFileRepository = Mockito.mock(PatientInfoFileRepository.class);
         Mockito.when(patientInfoFileRepository.getById("1")).thenReturn(new PatientInfo("Иван", "Петров", LocalDate.of(1980, 11, 26),
-                        new HealthInfo(new BigDecimal("36.65"), new BloodPressure(120, 80))));
+                new HealthInfo(new BigDecimal("36.65"), new BloodPressure(120, 80))));
         SendAlertServiceImpl sendAlertService = Mockito.spy(SendAlertServiceImpl.class);
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         MedicalServiceImpl medicalService = new MedicalServiceImpl(patientInfoFileRepository, sendAlertService);
@@ -42,6 +42,7 @@ public class Tests {
         assertThat(outContent.toString(), StringContains.containsString(expectedResult));
 
     }
+
     @Test
     public void checkTemperatureTestIfItsHigh() {
         PatientInfoFileRepository patientInfoFileRepository = Mockito.mock(PatientInfoFileRepository.class);
@@ -54,6 +55,7 @@ public class Tests {
         medicalService.checkTemperature("1", currentTemperature);
         assertThat(outContent.toString(), StringContains.containsString(expectedResult));
     }
+
     @Test
     public void checkTemperatureTestIfItsLow() {
         PatientInfoFileRepository patientInfoFileRepository = Mockito.mock(PatientInfoFileRepository.class);
@@ -66,6 +68,7 @@ public class Tests {
         medicalService.checkTemperature("1", currentTemperature);
         assertThat(outContent.toString(), StringContains.containsString(expectedResult));
     }
+
     @Test
     public void checkTemperatureAndBloodPressureIfItsOk() {
         PatientInfoFileRepository patientInfoFileRepository = Mockito.mock(PatientInfoFileRepository.class);
@@ -79,9 +82,10 @@ public class Tests {
         medicalService.checkBloodPressure("1", currentPressure);
         Assertions.assertEquals(outContent.toString(), "");
     }
+
     @After
     public void restoreStreams() {
         System.setOut(null);
     }
-}
 
+}
